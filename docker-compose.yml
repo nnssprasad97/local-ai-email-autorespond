@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  n8n:
+    image: n8nio/n8n
+    container_name: n8n_responder
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+      - GENERIC_TIMEZONE=UTC
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - ai_responder_net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider --proxy=off http://localhost:5678/healthz || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  ollama:
+    image: ollama/ollama
+    container_name: ollama_responder
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - ai_responder_net
+    healthcheck:
+      test: ["CMD", "ollama", "ps"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  ollama-init:
+    image: ollama/ollama
+    container_name: ollama_init
+    depends_on:
+      ollama:
+        condition: service_healthy
+    networks:
+      - ai_responder_net
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    command: pull llama3:8b
+
+volumes:
+  n8n_data:
+  ollama_data:
+
+networks:
+  ai_responder_net:

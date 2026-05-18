@@ -1,0 +1,134 @@
+{
+  "name": "Local AI Email Auto-Responder",
+  "nodes": [
+    {
+      "parameters": {
+        "mailbox": "INBOX",
+        "options": {
+          "customEmailRules": "[\"UNSEEN\"]"
+        }
+      },
+      "id": "node-imap-trigger",
+      "name": "Email Read (IMAP)",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [
+        200,
+        300
+      ],
+      "credentials": {
+        "imap": {
+          "id": "your-imap-credential-id",
+          "name": "IMAP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.from.address }}",
+              "operation": "notEqual",
+              "value2": "your_email@example.com"
+            },
+            {
+              "value1": "={{ $json.subject }}",
+              "operation": "notStartsWith",
+              "value2": "Re: "
+            }
+          ]
+        }
+      },
+      "id": "node-if",
+      "name": "IF (Prevent Loops)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        400,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://ollama:11434/api/generate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama3:8b\",\n  \"stream\": false,\n  \"prompt\": \"You are a helpful assistant. A new email has arrived from {{ $json.from.address }}. The subject is '{{ $json.subject }}'. The body is: \\n\\n{{ $json.text }}.\\n\\nPlease write a suitable reply. Only provide the reply body, without any greeting or signature.\"\n}",
+        "options": {}
+      },
+      "id": "node-http-request",
+      "name": "HTTP Request (Ollama)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        600,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "your_email@example.com",
+        "toEmail": "={{ $json.from.address }}",
+        "subject": "=Re: {{ $json.subject }}",
+        "text": "={{ $node[\"HTTP Request (Ollama)\"].json.response }}",
+        "options": {
+          "messageId": "={{ $json.messageId }}"
+        }
+      },
+      "id": "node-smtp-send",
+      "name": "Send Email (SMTP)",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [
+        800,
+        280
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "your-smtp-credential-id",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Email Read (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "IF (Prevent Loops)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF (Prevent Loops)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request (Ollama)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "HTTP Request (Ollama)": {
+      "main": [
+        [
+          {
+            "node": "Send Email (SMTP)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {}
+}

@@ -1,0 +1,16 @@
+{
+  "emailCredentials": {
+    "imap": {
+      "host": "imap.test.local",
+      "port": 993,
+      "user": "test_user@test.local",
+      "password": "test_password"
+    },
+    "smtp": {
+      "host": "smtp.test.local",
+      "port": 465,
+      "user": "test_user@test.local",
+      "password": "test_password"
+    }
+  }
+}

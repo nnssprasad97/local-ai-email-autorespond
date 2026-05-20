@@ -3,14 +3,14 @@
     "imap": {
       "host": "imap.ethereal.email",
       "port": 993,
-      "user": "test_auto_responder@ethereal.email",
-      "password": "replace_with_real_password"
+      "user": "lina.grant78@ethereal.email",
+      "password": "HUSBEQWwG94uznWNXK"
     },
     "smtp": {
       "host": "smtp.ethereal.email",
       "port": 587,
-      "user": "test_auto_responder@ethereal.email",
-      "password": "replace_with_real_password"
+      "user": "lina.grant78@ethereal.email",
+      "password": "HUSBEQWwG94uznWNXK"
     }
   }
 }

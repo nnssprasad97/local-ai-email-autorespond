@@ -30,7 +30,7 @@
             {
               "value1": "={{ $json.from.address }}",
               "operation": "notEqual",
-              "value2": "your_email@example.com"
+              "value2": "={{ $env[\"MY_EMAIL_ADDRESS\"] }}"
             },
             {
               "value1": "={{ $json.subject }}",

@@ -5,13 +5,14 @@ services:
     image: n8nio/n8n
     container_name: n8n_responder
     ports:
-      - "5678:5678"
+      - "${N8N_PORT:-5678}:5678"
     environment:
-      - N8N_HOST=localhost
-      - N8N_PORT=5678
-      - N8N_PROTOCOL=http
-      - WEBHOOK_URL=http://localhost:5678/
-      - GENERIC_TIMEZONE=UTC
+      - N8N_HOST=${N8N_HOST:-localhost}
+      - N8N_PORT=${N8N_PORT:-5678}
+      - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
+      - WEBHOOK_URL=${WEBHOOK_URL:-http://localhost:5678/}
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-UTC}
+      - MY_EMAIL_ADDRESS=${MY_EMAIL_ADDRESS}
     volumes:
       - n8n_data:/home/node/.n8n
     networks:
@@ -23,7 +24,9 @@ services:
       retries: 3
 
   ollama:
-    image: ollama/ollama
+    build: 
+      context: .
+      dockerfile: Dockerfile.ollama
     container_name: ollama_responder
     volumes:
       - ollama_data:/root/.ollama
@@ -34,18 +37,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-
-  ollama-init:
-    image: ollama/ollama
-    container_name: ollama_init
-    depends_on:
-      ollama:
-        condition: service_healthy
-    networks:
-      - ai_responder_net
-    environment:
-      - OLLAMA_HOST=http://ollama:11434
-    command: pull llama3:8b
 
 volumes:
   n8n_data:

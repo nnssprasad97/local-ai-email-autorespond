@@ -1,16 +1,16 @@
 {
   "emailCredentials": {
     "imap": {
-      "host": "imap.test.local",
+      "host": "imap.ethereal.email",
       "port": 993,
-      "user": "test_user@test.local",
-      "password": "test_password"
+      "user": "test_auto_responder@ethereal.email",
+      "password": "replace_with_real_password"
     },
     "smtp": {
-      "host": "smtp.test.local",
-      "port": 465,
-      "user": "test_user@test.local",
-      "password": "test_password"
+      "host": "smtp.ethereal.email",
+      "port": 587,
+      "user": "test_auto_responder@ethereal.email",
+      "password": "replace_with_real_password"
     }
   }
 }
